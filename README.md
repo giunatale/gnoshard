@@ -14,31 +14,24 @@ placeholders, each defined once in `app/chain.go`.
 ## Build and test
 
 ```bash
-make build        # build/gnoshardd and build/gnostdlibs-driver
+make build        # build/gnoshardd
 make test
 make docker-build
 ```
 
 Go 1.26.11. The module pins atomone-sdk the way vaas does, `github.com/allinbits/vaas`
-replaced by the `pre-mvp` branch of giunatale/vaas until a release, and the
-gno fork ignite/gnovm's README names.
+replaced by the `pre-mvp` branch of giunatale/vaas until a release,
+`github.com/ignite/gnovm` replaced by the `gnoroot` branch of giunatale/gnovm
+until its change (the standard library located through `GNOROOT`) is
+upstream, and the gno fork ignite/gnovm's README names.
 
 ## The Gno standard library
 
-`x/gnovm` loads the Gno standard library at InitGenesis and locates it by
-asking the Go toolchain for the gno module's `gnovm/stdlibs` package. A node
-started from a directory where `go list` cannot resolve that package, or an
-image without a Go toolchain, fails at InitChain. `cmd/gnostdlibs-driver`
-answers that one query from the environment instead:
-
-```bash
-export GOPACKAGESDRIVER=/path/to/gnostdlibs-driver
-export GNO_STDLIBS_DIR=/path/to/gno/gnovm/stdlibs
-gnoshardd start
-```
-
-The Dockerfile sets both and carries a copy of the library. The localnet
-targets set them from the module cache.
+`x/gnovm` loads the Gno standard library at InitGenesis from
+`GNOROOT/gnovm/stdlibs`. With `GNOROOT` unset it asks the Go toolchain for the
+gno module's directory, which works in a checkout and nowhere else; a node
+image sets `GNOROOT` and carries a copy of the library under it, as the
+Dockerfile does. The localnet targets set it from the module cache.
 
 ## Localnet, as a consumer of a provider on this host
 

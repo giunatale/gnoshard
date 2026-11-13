@@ -14,22 +14,20 @@ ARG VERSION=dev
 ARG COMMIT=unknown
 RUN CGO_ENABLED=0 go build -mod=readonly \
 	-ldflags "-X github.com/cosmos/cosmos-sdk/version.Name=gnoshard -X github.com/cosmos/cosmos-sdk/version.AppName=gnoshardd -X github.com/cosmos/cosmos-sdk/version.Version=${VERSION} -X github.com/cosmos/cosmos-sdk/version.Commit=${COMMIT}" \
-	-o /out/ ./cmd/gnoshardd ./cmd/gnostdlibs-driver
+	-o /out/ ./cmd/gnoshardd
 
-# The Gno standard library, which the node loads at InitGenesis. x/gnovm asks
-# the Go toolchain where the gno module keeps it; the image carries a copy and
-# gnostdlibs-driver answers in the toolchain's place.
-RUN cp -r "$(go list -m -f '{{.Dir}}' github.com/gnolang/gno)/gnovm/stdlibs" /out/gno-stdlibs
+# The Gno standard library, which the node loads at InitGenesis from
+# GNOROOT/gnovm/stdlibs.
+RUN mkdir -p /out/gnoroot/gnovm && cp -r "$(go list -m -f '{{.Dir}}' github.com/gnolang/gno)/gnovm/stdlibs" /out/gnoroot/gnovm/stdlibs
 
 FROM alpine:${IMG_TAG}
 
 RUN apk add --no-cache bash curl jq
 RUN adduser -D nonroot -h /home/nonroot
 
-COPY --from=builder /out/gnoshardd /out/gnostdlibs-driver /usr/local/bin/
-COPY --from=builder /out/gno-stdlibs /usr/local/share/gno/stdlibs
-ENV GOPACKAGESDRIVER=/usr/local/bin/gnostdlibs-driver \
-	GNO_STDLIBS_DIR=/usr/local/share/gno/stdlibs
+COPY --from=builder /out/gnoshardd /usr/local/bin/
+COPY --from=builder /out/gnoroot /usr/local/share/gno
+ENV GNOROOT=/usr/local/share/gno
 
 EXPOSE 26656 26657 1317 9090
 

@@ -18,8 +18,9 @@ replace (
 	// pseudo-version only sorts below the tag by name. Switch this replace, and
 	// the x/evidence one, to the next release tag.
 	github.com/cosmos/cosmos-sdk => github.com/atomone-hub/cosmos-sdk v0.500.3-0.20261112114214-e606aa2b81b1
-	// x/gnovm's own pins: the gno fork its README names (the denom fix), and
-	// the replaces its module graph needs.
+	// x/gnovm from a fork until ignite/gnovm#<pr> (the standard library
+	// located through GNOROOT) merges; the gno fork x/gnovm's README names
+	// (the denom fix), and the replaces its module graph needs.
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
 	github.com/gnolang/gno => github.com/allinbits/gno v0.0.0-20260225225412-eaf5d1ebb836
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
@@ -49,7 +50,6 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.12.1
-	golang.org/x/tools v0.49.0
 )
 
 require (
@@ -267,6 +267,7 @@ require (
 	golang.org/x/term v0.46.0 // indirect
 	golang.org/x/text v0.42.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
+	golang.org/x/tools v0.49.0 // indirect
 	google.golang.org/api v0.299.0 // indirect
 	google.golang.org/genproto v0.0.0-20260715232425-e75dac1f907d // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688 // indirect
@@ -279,3 +280,5 @@ require (
 	pgregory.net/rapid v1.2.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+replace github.com/ignite/gnovm => github.com/giunatale/gnovm v0.1.0-beta.1.0.20261113230142-a14174a61468

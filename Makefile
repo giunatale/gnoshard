@@ -13,10 +13,10 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=gnoshard \
 
 build: go.sum
 	mkdir -p $(BUILDDIR)
-	go build -mod=readonly -ldflags "$(ldflags)" -o $(BUILDDIR)/ ./cmd/gnoshardd ./cmd/gnostdlibs-driver
+	go build -mod=readonly -ldflags "$(ldflags)" -o $(BUILDDIR)/ ./cmd/gnoshardd
 
 install: go.sum
-	go install -mod=readonly -ldflags "$(ldflags)" ./cmd/gnoshardd ./cmd/gnostdlibs-driver
+	go install -mod=readonly -ldflags "$(ldflags)" ./cmd/gnoshardd
 
 test:
 	go test -timeout 20m ./...
@@ -52,11 +52,11 @@ providerd ?= provider --home $(provider_home)
 CONSUMER_ID ?= 1
 localnetd = $(BUILDDIR)/gnoshardd --home $(localnet_home)
 
-# The Gno standard library the node loads at InitGenesis: the gno module's
-# copy in the module cache, served to x/gnovm by gnostdlibs-driver so the
-# node does not depend on `go list` resolving it from its working directory.
-GNO_STDLIBS_DIR ?= $(shell go list -m -f '{{.Dir}}' github.com/gnolang/gno)/gnovm/stdlibs
-localnet_env = GOPACKAGESDRIVER=$(BUILDDIR)/gnostdlibs-driver GNO_STDLIBS_DIR=$(GNO_STDLIBS_DIR)
+# The Gno root directory, whose gnovm/stdlibs the node loads at InitGenesis:
+# the gno module's copy in the module cache, named explicitly so the node
+# does not depend on `go list` resolving it from its working directory.
+GNOROOT ?= $(shell go list -m -f '{{.Dir}}' github.com/gnolang/gno)
+localnet_env = GNOROOT=$(GNOROOT)
 
 # Ports offset from the defaults so the node coexists with a provider and the
 # vaas reference consumer on one host.
