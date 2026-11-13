@@ -70,9 +70,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 		// Last, as in x/gnovm's own application: the decorator refuses a
 		// transaction that mixes Gno messages with others and lifts the gas
-		// limit for Gno messages under simulation, and it hands the next
-		// handler a zero context outside simulation, which baseapp accepts
-		// only from the end of the chain.
+		// limit for Gno messages under simulation.
 		gnovmante.NewAnteHandler(),
 	}
 
