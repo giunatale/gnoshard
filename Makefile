@@ -83,7 +83,8 @@ localnet-init: build
 	jq '.app_state.gnovm.params.default_deposit |= sub("[a-z]+$$"; "$(denom)") | .app_state.gnovm.params.storage_price |= sub("[a-z]+$$"; "$(denom)")' \
 		$(localnet_home)/config/genesis.json > $(localnet_home)/config/genesis.json.tmp
 	mv $(localnet_home)/config/genesis.json.tmp $(localnet_home)/config/genesis.json
-	$(localnetd) genesis validate
+	# genesis validate waits for localnet-genesis: a consumer genesis without
+	# the provider's payload has no validator set and is refused.
 	sed -i.bak 's#^minimum-gas-prices = .*#minimum-gas-prices = "0.01$(denom)"#g' $(localnet_home)/config/app.toml
 	sed -i.bak 's#tcp://127.0.0.1:26657#tcp://0.0.0.0:$(rpc_port)#g' $(localnet_home)/config/config.toml
 	sed -i.bak 's#tcp://0.0.0.0:26656#tcp://0.0.0.0:$(p2p_port)#g' $(localnet_home)/config/config.toml
