@@ -45,6 +45,11 @@ make localnet-run provider_home=<provider home>
 From there the flow is any consumer's (see the consumer launch runbook in the
 vaas repository): a relayer creates the IBC v2 clients, the owner declares
 them on both chains, the fee pool is funded, and the validator set arrives.
+Until the owner pins the provider client, the consumer's message filter
+admits only the bootstrap messages (IBC client messages, the owner's), so a
+relayer's account on this chain has to be funded in genesis
+(`gnoshardd genesis add-genesis-account`), and Gno transactions wait for the
+pin.
 
 ## Using the VM
 
