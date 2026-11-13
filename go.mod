@@ -281,4 +281,4 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
-replace github.com/ignite/gnovm => github.com/giunatale/gnovm v0.1.0-beta.1.0.20261113230142-a14174a61468
+replace github.com/ignite/gnovm => github.com/giunatale/gnovm v0.1.0-beta.1.0.20261113232738-6955fe7d155a
