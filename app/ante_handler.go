@@ -1,0 +1,89 @@
+package app
+
+import (
+	ibcante "github.com/cosmos/ibc-go/v10/modules/core/ante"
+	ibckeeper "github.com/cosmos/ibc-go/v10/modules/core/keeper"
+	gnovmante "github.com/ignite/gnovm/x/gnovm/ante"
+
+	errorsmod "cosmossdk.io/errors"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+
+	consumerante "github.com/allinbits/vaas/x/vaas/consumer/ante"
+	ibcconsumerkeeper "github.com/allinbits/vaas/x/vaas/consumer/keeper"
+)
+
+// HandlerOptions extend cosmos-sdk's ante.HandlerOptions with the ibc-go
+// keeper the redundant-relay decorator needs and the consumer keeper the
+// message filter and photon fee decorators read.
+type HandlerOptions struct {
+	ante.HandlerOptions
+
+	IBCKeeper      *ibckeeper.Keeper
+	ConsumerKeeper ibcconsumerkeeper.Keeper
+}
+
+func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
+	if options.AccountKeeper == nil {
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for AnteHandler")
+	}
+	if options.BankKeeper == nil {
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "bank keeper is required for AnteHandler")
+	}
+	if options.SignModeHandler == nil {
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+	}
+
+	sigGasConsumer := options.SigGasConsumer
+	if sigGasConsumer == nil {
+		sigGasConsumer = ante.DefaultSigVerificationGasConsumer
+	}
+
+	anteDecorators := []sdk.AnteDecorator{
+		ante.NewSetUpContextDecorator(),
+		ante.NewExtensionOptionsDecorator(nil),
+		consumerante.NewDisabledModulesDecorator("/cosmos.evidence", "/cosmos.slashing"),
+		ante.NewValidateBasicDecorator(),
+		consumerante.NewMsgFilterDecorator(options.ConsumerKeeper),
+		ante.NewTxTimeoutHeightDecorator(),
+		ante.NewValidateMemoDecorator(options.AccountKeeper),
+		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		// The photon fee policy sits immediately before fee deduction, per the
+		// decorator's contract: it vets the fee denom that DeductFeeDecorator
+		// is about to collect. It self-gates on the photon_fees_enabled
+		// consumer param, so it is wired unconditionally and no-ops on chains
+		// that did not opt in.
+		consumerante.NewPhotonFeeDecorator(options.ConsumerKeeper),
+		// The node fee floor follows the photon policy's split: waived for
+		// bootstrap traffic while no routable provider client is pinned, or
+		// while a photon-fees chain holds no voucher at all, and applied to
+		// everything else. An explicitly configured checker still wins.
+		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, txFeeCheckerOrDefault(options.TxFeeChecker, options.ConsumerKeeper)),
+		// SetPubKeyDecorator must be called before all signature verification decorators
+		ante.NewSetPubKeyDecorator(options.AccountKeeper),
+		ante.NewValidateSigCountDecorator(options.AccountKeeper),
+		ante.NewSigGasConsumeDecorator(options.AccountKeeper, sigGasConsumer),
+		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
+		// Last, as in x/gnovm's own application: the decorator refuses a
+		// transaction that mixes Gno messages with others and lifts the gas
+		// limit for Gno messages under simulation, and it hands the next
+		// handler a zero context outside simulation, which baseapp accepts
+		// only from the end of the chain.
+		gnovmante.NewAnteHandler(),
+	}
+
+	return sdk.ChainAnteDecorators(anteDecorators...), nil
+}
+
+// txFeeCheckerOrDefault returns the explicitly configured checker, or the
+// consumer's bootstrap-exempt one when none is set.
+func txFeeCheckerOrDefault(checker ante.TxFeeChecker, k consumerante.BootstrapKeeper) ante.TxFeeChecker {
+	if checker != nil {
+		return checker
+	}
+	return consumerante.NewBootstrapExemptTxFeeChecker(k)
+}

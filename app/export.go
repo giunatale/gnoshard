@@ -1,0 +1,93 @@
+package app
+
+import (
+	"encoding/json"
+	"fmt"
+
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
+
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+// ExportAppStateAndValidators implements the simapp app interface
+// by exporting the state of the application
+func (app *App) ExportAppStateAndValidators(
+	forZeroHeight bool, jailAllowedAddrs, modulesToExport []string,
+) (servertypes.ExportedApp, error) {
+	// As if they could withdraw from the start of the next block.
+	// The context must carry the last committed height: distribution's
+	// delegation-reward recalculation replays validator slash events between
+	// the delegation's creation height and ctx.BlockHeight(), so a zero
+	// height skips every slash event and panics on any validator slashed
+	// after the delegation was created.
+	ctx := app.NewContextLegacy(true, cmtproto.Header{Height: app.LastBlockHeight()})
+
+	// We export at last height + 1, because that's the height at which
+	// CometBFT will start InitChain.
+	height := app.LastBlockHeight() + 1
+	if forZeroHeight {
+		height = 0
+		app.prepForZeroHeightGenesis(ctx)
+	}
+
+	genState, err := app.MM.ExportGenesis(ctx, app.appCodec)
+	if err != nil {
+		return servertypes.ExportedApp{}, err
+	}
+	appState, err := json.MarshalIndent(genState, "", "  ")
+	if err != nil {
+		return servertypes.ExportedApp{}, err
+	}
+
+	validators, err := app.GetValidatorSet(ctx)
+	if err != nil {
+		return servertypes.ExportedApp{}, err
+	}
+
+	return servertypes.ExportedApp{
+		AppState:        appState,
+		Height:          height,
+		Validators:      validators,
+		ConsensusParams: app.BaseApp.GetConsensusParams(ctx),
+	}, nil
+}
+
+// prepForZeroHeightGenesis prepares the exported state for a fresh start at
+// height zero.
+//
+// A consumer chain wires no staking module and no x/slashing: its validator
+// set comes from the provider over VSC packets, so the exporter's jail-allowed
+// list has nothing to act on here. What is height-relative is the VAAS
+// downtime window in progress.
+func (app *App) prepForZeroHeightGenesis(ctx sdk.Context) {
+	// The open window's bitmaps and first-tracked heights are keyed on the
+	// exporting chain's heights; the relaunch starts a fresh window.
+	app.ConsumerKeeper.ResetMissedBlockTracking(ctx)
+}
+
+// GetValidatorSet returns the consumer's cross-chain validators. The set may be
+// empty if the consumer has not yet received a validator set from the provider.
+func (app *App) GetValidatorSet(ctx sdk.Context) ([]tmtypes.GenesisValidator, error) {
+	vaasVals := app.ConsumerKeeper.GetAllVaasValidator(ctx)
+
+	vals := []tmtypes.GenesisValidator{}
+	for _, v := range vaasVals {
+		// A GenesisValidator with a nil PubKey serializes as "pub_key": null,
+		// and CometBFT's GenesisDoc.ValidateAndComplete panics dereferencing it
+		// on reload -- so unpack the stored consensus key and set it, mirroring
+		// x/staking's WriteValidators, to keep the exported genesis loadable.
+		pk, err := v.ConsPubKey()
+		if err != nil {
+			return nil, fmt.Errorf("unpacking cross-chain validator %X consensus pubkey: %w", v.Address, err)
+		}
+		cmtPk, err := cryptocodec.ToCmtPubKeyInterface(pk)
+		if err != nil {
+			return nil, fmt.Errorf("converting cross-chain validator %X consensus pubkey: %w", v.Address, err)
+		}
+		vals = append(vals, tmtypes.GenesisValidator{Address: v.Address, PubKey: cmtPk, Power: v.Power})
+	}
+	return vals, nil
+}
