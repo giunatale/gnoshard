@@ -16,9 +16,12 @@ RUN CGO_ENABLED=0 go build -mod=readonly \
 	-ldflags "-X github.com/cosmos/cosmos-sdk/version.Name=gnoshard -X github.com/cosmos/cosmos-sdk/version.AppName=gnoshardd -X github.com/cosmos/cosmos-sdk/version.Version=${VERSION} -X github.com/cosmos/cosmos-sdk/version.Commit=${COMMIT}" \
 	-o /out/ ./cmd/gnoshardd
 
-# The Gno standard library, which the node loads at InitGenesis from
-# GNOROOT/gnovm/stdlibs.
-RUN mkdir -p /out/gnoroot/gnovm && cp -r "$(go list -m -f '{{.Dir}}' github.com/gnolang/gno)/gnovm/stdlibs" /out/gnoroot/gnovm/stdlibs
+# The Gno standard library under GNOROOT: gnovm/stdlibs, which the node loads
+# at InitGenesis, and gnovm/tests/stdlibs, which the VM reads when it
+# type-checks the library's test files.
+RUN gno="$(go list -m -f '{{.Dir}}' github.com/gnolang/gno)" && mkdir -p /out/gnoroot/gnovm/tests && \
+    cp -r "$gno/gnovm/stdlibs" /out/gnoroot/gnovm/stdlibs && \
+    cp -r "$gno/gnovm/tests/stdlibs" /out/gnoroot/gnovm/tests/stdlibs
 
 FROM alpine:${IMG_TAG}
 

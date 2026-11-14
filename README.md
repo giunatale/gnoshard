@@ -30,8 +30,9 @@ upstream, and the gno fork ignite/gnovm's README names.
 `x/gnovm` loads the Gno standard library at InitGenesis from
 `GNOROOT/gnovm/stdlibs`. With `GNOROOT` unset it asks the Go toolchain for the
 gno module's directory, which works in a checkout and nowhere else; a node
-image sets `GNOROOT` and carries a copy of the library under it, as the
-Dockerfile does. The localnet targets set it from the module cache.
+image sets `GNOROOT` and carries `gnovm/stdlibs` and `gnovm/tests/stdlibs`
+under it (the VM type-checks the library's test files against the second),
+as the Dockerfile does. The localnet targets set it from the module cache.
 
 ## Localnet, as a consumer of a provider on this host
 
