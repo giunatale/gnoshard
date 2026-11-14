@@ -36,7 +36,7 @@ Dockerfile does. The localnet targets set it from the module cache.
 ## Localnet, as a consumer of a provider on this host
 
 ```bash
-make localnet-init                     # ~/.gnoshard-localnet, chain id gnoshard-localnet
+make localnet-init                     # home build/localnet, chain id gnoshard-localnet
 # create the consumer on the provider with chain id gnoshard-localnet
 make localnet-genesis CONSUMER_ID=<id> providerd="<provider binary> --home <provider home>"
 make localnet-run provider_home=<provider home>

@@ -36,6 +36,9 @@ docker-build:
 # One gnoshard node as a VAAS consumer of a provider already running on this
 # host. The flow mirrors the vaas repository's consumer targets:
 #
+# The node's home is build/localnet (override localnet_home); nothing is
+# written under $HOME.
+#
 #   make localnet-init
 #   <create the consumer on the provider with chain id $(chain_id)>
 #   make localnet-genesis CONSUMER_ID=<id> providerd="<provider binary> --home <provider home>"
@@ -44,7 +47,7 @@ docker-build:
 # The node then waits for the relayer's clients and the owner's declarations,
 # like any consumer (see the vaas consumer launch runbook).
 
-localnet_home ?= $(HOME)/.gnoshard-localnet
+localnet_home ?= $(BUILDDIR)/localnet
 chain_id ?= gnoshard-localnet
 denom ?= ushard
 provider_home ?= $(HOME)/.provider-localnet
