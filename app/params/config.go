@@ -18,8 +18,8 @@ import (
 
 const (
 	// DefaultBech32Prefix is the address prefix when Bech32PrefixEnvVar is
-	// unset. A placeholder until the testnet's prefix is decided.
-	DefaultBech32Prefix = "shard"
+	// unset.
+	DefaultBech32Prefix = "gnoshard"
 
 	// Bech32PrefixEnvVar names the environment variable that overrides the
 	// address prefix, for test networks.

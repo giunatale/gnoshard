@@ -1,15 +1,18 @@
 # gnoshard
 
-A Cosmos SDK chain that runs the Gno virtual machine and leases its validator
-set from a VAAS provider. It is the vaas repository's reference consumer
+A demo consumer chain for [allinbits/vaas](https://github.com/allinbits/vaas)
+using the [ignite/gnovm](https://github.com/ignite/gnovm) module: a Cosmos SDK
+chain that runs the Gno virtual machine and leases its validator set from a
+VAAS provider. It is the vaas repository's reference consumer
 (`app/consumer`) with [ignite/gnovm](https://github.com/ignite/gnovm)'s
 `x/gnovm` added: auth, bank, vesting, params, consensus, upgrade, genutil, ibc
 core, transfer, `vaasconsumer` and `gnovm`. There is no staking, slashing or
 gov module: the validator set arrives over VSC packets, and the chain's
 authority is its owner on the provider, acting through `MsgOwnerExec`.
 
-The name, the bech32 prefix (`shard`) and the fee denom (`ushard`) are
-placeholders, each defined once in `app/chain.go`.
+The bech32 prefix is `gnoshard` (`app/params/config.go`; the
+`GNOSHARD_BECH32_PREFIX` environment variable overrides it) and the fee denom
+is `ushard` (`app/chain.go`).
 
 ## Build and test
 
@@ -65,3 +68,11 @@ gnoshardd query gnovm eval gno.land/r/demo/counter 'Render("")'
 Gno messages cannot share a transaction with other messages, and the VM's
 storage deposit and price are quoted in the chain's denom (set at genesis;
 `localnet-init` does it).
+
+## License
+
+gnoshard is built on [gno](https://github.com/gnolang/gno) and
+[ignite/gnovm](https://github.com/ignite/gnovm), and is licensed like them
+under the GNO Network General Public License (`license.md`). Its application
+code derives from the VAAS reference consumer in
+[allinbits/vaas](https://github.com/allinbits/vaas), licensed under Apache-2.0.
