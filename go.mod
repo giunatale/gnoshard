@@ -18,11 +18,8 @@ replace (
 	// pseudo-version only sorts below the tag by name. Switch this replace, and
 	// the x/evidence one, to the next release tag.
 	github.com/cosmos/cosmos-sdk => github.com/atomone-hub/cosmos-sdk v0.500.3-0.20261112114214-e606aa2b81b1
-	// x/gnovm from the gnoroot branch of giunatale/gnovm until its fixes
-	// merge in ignite/gnovm (the standard library located through GNOROOT;
-	// gas metering in the ante decorator and the VM's initialization); the
-	// gno fork x/gnovm's README names (the denom fix), and the replaces its
-	// module graph needs.
+	// The gno fork x/gnovm's README names (the denom fix), and the replaces
+	// its module graph needs.
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
 	github.com/gnolang/gno => github.com/allinbits/gno v0.0.0-20260225225412-eaf5d1ebb836
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
@@ -47,7 +44,7 @@ require (
 	github.com/cosmos/gogoproto v1.7.2
 	github.com/cosmos/ibc-go/v10 v10.5.0
 	github.com/gnolang/gno v0.0.0-20250930114629-66df56529bed
-	github.com/ignite/gnovm v0.1.0-beta.1.0.20260310102219-a3de78ac465b
+	github.com/ignite/gnovm v0.1.0-beta.1.0.20261116145856-4fc78ff588c0
 	github.com/spf13/cast v1.10.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
@@ -282,5 +279,3 @@ require (
 	pgregory.net/rapid v1.2.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
-
-replace github.com/ignite/gnovm => github.com/giunatale/gnovm v0.1.0-beta.1.0.20261116115608-56ad2e306cec
