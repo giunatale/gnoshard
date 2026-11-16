@@ -22,8 +22,9 @@ make docker-build
 Go 1.26.11. The module pins atomone-sdk the way vaas does, `github.com/allinbits/vaas`
 replaced by the `pre-mvp` branch of giunatale/vaas until a release,
 `github.com/ignite/gnovm` replaced by the `gnoroot` branch of giunatale/gnovm
-until its change (the standard library located through `GNOROOT`) is
-upstream, and the gno fork ignite/gnovm's README names.
+until its fixes are upstream (the standard library located through `GNOROOT`;
+gas metering in the ante decorator and the VM's initialization), and the gno
+fork ignite/gnovm's README names.
 
 ## The Gno standard library
 

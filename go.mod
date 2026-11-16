@@ -18,9 +18,11 @@ replace (
 	// pseudo-version only sorts below the tag by name. Switch this replace, and
 	// the x/evidence one, to the next release tag.
 	github.com/cosmos/cosmos-sdk => github.com/atomone-hub/cosmos-sdk v0.500.3-0.20261112114214-e606aa2b81b1
-	// x/gnovm from a fork until ignite/gnovm#<pr> (the standard library
-	// located through GNOROOT) merges; the gno fork x/gnovm's README names
-	// (the denom fix), and the replaces its module graph needs.
+	// x/gnovm from the gnoroot branch of giunatale/gnovm until its fixes
+	// merge in ignite/gnovm (the standard library located through GNOROOT;
+	// gas metering in the ante decorator and the VM's initialization); the
+	// gno fork x/gnovm's README names (the denom fix), and the replaces its
+	// module graph needs.
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
 	github.com/gnolang/gno => github.com/allinbits/gno v0.0.0-20260225225412-eaf5d1ebb836
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
@@ -281,4 +283,4 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
-replace github.com/ignite/gnovm => github.com/giunatale/gnovm v0.1.0-beta.1.0.20261113233513-ceeb4c4c7855
+replace github.com/ignite/gnovm => github.com/giunatale/gnovm v0.1.0-beta.1.0.20261116115608-56ad2e306cec
