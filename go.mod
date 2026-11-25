@@ -6,8 +6,8 @@ replace (
 	cosmossdk.io/x/evidence => github.com/atomone-hub/cosmos-sdk/x/evidence v0.1.2-0.20261112114214-e606aa2b81b1
 	cosmossdk.io/x/upgrade => github.com/atomone-hub/cosmos-sdk/x/upgrade v0.1.5-atomone.1.0.20251218143825-cbb67818e94a
 	// The VAAS modules from the pre-mvp integration branch, until a release.
-	github.com/allinbits/vaas => github.com/giunatale/vaas v0.0.0-20261113222544-fa8d1585828e
-	github.com/allinbits/vaas/app => github.com/giunatale/vaas/app v0.0.0-20261113222544-fa8d1585828e
+	github.com/allinbits/vaas => github.com/giunatale/vaas v0.0.0-20261125093545-e46f6226ae99
+	github.com/allinbits/vaas/app => github.com/giunatale/vaas/app v0.0.0-20261125093545-e46f6226ae99
 	github.com/bytedance/sonic => github.com/bytedance/sonic v1.15.0
 	// Pinned to atomone-hub/atomone-sdk main (e606aa2, 2026-11-12). That head
 	// carries everything in v0.500.6 plus the pre-rotation staking hook (#137),
@@ -38,7 +38,7 @@ require (
 	cosmossdk.io/x/upgrade v0.2.0
 	github.com/allinbits/vaas v0.0.0-00010101000000-000000000000
 	github.com/allinbits/vaas/app v0.0.0-00010101000000-000000000000
-	github.com/cometbft/cometbft v0.38.23
+	github.com/cometbft/cometbft v0.38.25
 	github.com/cosmos/cosmos-db v1.1.3
 	github.com/cosmos/cosmos-sdk v0.500.0
 	github.com/cosmos/gogoproto v1.7.2
